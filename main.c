@@ -138,6 +138,34 @@ void create_file(inode *dir, const char* name, bool readonly) {
     dir->entries[ind] = (uintptr_t) file;
 }
 
+inode *find_dir(inode *dir, const char* name) {
+    if (!dir->is_directory){
+        perror("Expected a directory as root for seaching for a sub-directory\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < dir->num_entries; i++) {
+        inode *node = (inode*) dir->entries[i];
+        if (node->is_directory && strcmp(node->name, name) == 0)
+            return node;
+    }
+    return NULL;
+}
+
+inode *find_file(inode *dir, const char* name) {
+    if (!dir->is_directory){
+        perror("Expected a directory as root for seaching for a file\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < dir->num_entries; i++) {
+        inode *node = (inode*) dir->entries[i];
+        if (!node->is_directory && strcmp(node->name, name) == 0)
+            return node;
+    }
+    return NULL;
+}
+
 void free_fs(inode *this) {
     for (int i = 0; i < this->num_entries && this->is_directory; ++i) {
         free_fs((inode*)(this->entries[i]));
